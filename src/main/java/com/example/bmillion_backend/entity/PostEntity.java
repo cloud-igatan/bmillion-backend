@@ -1,7 +1,6 @@
 package com.example.bmillion_backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +9,9 @@ import lombok.Setter;
 @Setter
 public class PostEntity extends BaseEntity {
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Column(name = "content", nullable = false)
     private String content;
