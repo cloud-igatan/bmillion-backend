@@ -9,6 +9,7 @@ import com.example.bmillion_backend.dto.UserRequestDto;
 import com.example.bmillion_backend.entity.UserEntity;
 import com.example.bmillion_backend.entity.custom.UserRole;
 import com.example.bmillion_backend.repo.UserRepo;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,6 +60,11 @@ public class UserService {
 
         jwtTokenProvider.setHeaderAccessToken(response,AT);
         jwtTokenProvider.setHeaderRefreshToken(response,RT);
+    }
+
+    public UserEntity findUserByToken(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveAccessToken(request);
+        return token == null ? null : userRepo.findByUserId(jwtTokenProvider.getUserId(token)).orElse(null);
     }
 
 }
