@@ -29,10 +29,10 @@ public class PostController {
     @Operation(summary = "게시글 작성")
     @PostMapping()
     public ResponseEntity<String> createPost(
-            @RequestBody PostRequestDto postRequestDto,
-            @RequestParam(value = "image", required = false) MultipartFile imageFile,
+            @RequestPart(required = false) PostRequestDto postRequestDto,
+            @RequestPart(required = false) MultipartFile multipartFile,
             HttpServletRequest request) throws IOException {
-        postService.createPost(postRequestDto, imageFile, request);
+        postService.createPost(postRequestDto, multipartFile, request);
         return ResponseEntity.ok("게시글 작성 완료");
     }
 
@@ -40,10 +40,10 @@ public class PostController {
     @PutMapping("/{post_id}")
     public ResponseEntity<String> updatePost(
             @PathVariable Long post_id,
-            @RequestBody PostRequestDto postRequestDto,
-            @RequestParam(value = "image", required = false) MultipartFile imageFile,
+            @RequestPart(required = false) PostRequestDto postRequestDto,
+            @RequestPart(required = false) MultipartFile multipartFile,
             HttpServletRequest request) throws IOException {
-        postService.updatePost(post_id, postRequestDto, imageFile, request);
+        postService.updatePost(post_id, postRequestDto, multipartFile, request);
         return ResponseEntity.ok("게시글 수정 완료");
     }
 

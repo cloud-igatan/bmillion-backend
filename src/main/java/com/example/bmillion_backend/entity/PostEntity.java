@@ -16,8 +16,10 @@ public class PostEntity extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Lob
-    @Column(name = "image")
-    private byte[] image;
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_url")
+    private String fileUrl;
 
 }

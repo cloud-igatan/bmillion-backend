@@ -9,7 +9,6 @@ import com.example.bmillion_backend.dto.PostResponseDto;
 import com.example.bmillion_backend.entity.PostEntity;
 import com.example.bmillion_backend.entity.UserEntity;
 import com.example.bmillion_backend.repo.PostRepo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,30 +29,24 @@ public class PostService {
     @Autowired
     private UserService userService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private S3Service s3Service;
 
-    private void mapRequestToEntity(PostRequestDto request, PostEntity entity) {
-        entity.setContent(request.getContent());
-    }
-
-    public void createPost(PostRequestDto postRequest, MultipartFile imageFile, HttpServletRequest request) throws IOException {
+    public void createPost(PostRequestDto postRequest, MultipartFile multipartFile, HttpServletRequest request) throws IOException {
         UserEntity user = userService.findUserByToken(request);
         if (user == null)
             throw new NotFoundException("로그인 후 게시글 작성이 가능합니다", ErrorCode.NOT_FOUND_EXCEPTION);
 
         PostEntity post = new PostEntity();
-        mapRequestToEntity(postRequest, post);
         post.setUser(user);
-
-        if (imageFile != null && !imageFile.isEmpty()) {
-            byte[] imageBytes = imageFile.getBytes();
-            post.setImage(imageBytes);
-        }
-
+        post.setContent(postRequest.getContent());
         postRepo.save(post);
+        if (multipartFile != null) {
+            s3Service.uploadFile(post, multipartFile);
+        }
     }
 
-    public void updatePost(Long post_id, PostRequestDto postRequest, MultipartFile imageFile, HttpServletRequest request) throws IOException {
+    public void updatePost(Long post_id, PostRequestDto postRequest, MultipartFile multipartFile, HttpServletRequest request) throws IOException {
         UserEntity user = userService.findUserByToken(request);
         if (user == null)
             throw new UnAuthorizedException("게시글 수정 권한이 없습니다", ErrorCode.UNAUTHORIZED_EXCEPTION);
@@ -64,13 +57,12 @@ public class PostService {
         if (post.getUser() != user)
             throw new UnAuthorizedException("게시글 수정 권한이 없습니다", ErrorCode.UNAUTHORIZED_EXCEPTION);
 
-        mapRequestToEntity(postRequest, post);
-
-        if (imageFile != null && !imageFile.isEmpty()) {
-            byte[] imageBytes = imageFile.getBytes();
-            post.setImage(imageBytes);
+        if (post.getFileName() != null) {
+            s3Service.deleteFile(post.getFileName());
         }
-
+        if (multipartFile != null) {
+            s3Service.uploadFile(post, multipartFile);
+        }
         post.setContent(postRequest.getContent());
     }
 
@@ -85,6 +77,9 @@ public class PostService {
         if (post.getUser() != user)
             throw new UnAuthorizedException("게시글 삭제 권한이 없습니다", ErrorCode.UNAUTHORIZED_EXCEPTION);
 
+        if (post.getFileName() != null) {
+            s3Service.deleteFile(post.getFileName());
+        }
         postRepo.deleteById(post_id);
     }
 
@@ -119,7 +114,7 @@ public class PostService {
         response.setId(post.getId());
         response.setCreatedDate(post.getCreatedDate());
         response.setContent(post.getContent());
-        response.setImage(post.getImage());
+        response.setFileUrl(post.getFileUrl());
         return response;
     }
 
