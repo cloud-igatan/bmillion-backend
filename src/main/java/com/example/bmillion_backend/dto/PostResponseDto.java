@@ -16,6 +16,6 @@ public class PostResponseDto {
     private LocalDateTime createdDate;
 
     private String content;
-    private byte[] image;
+    private String fileUrl;
 
 }

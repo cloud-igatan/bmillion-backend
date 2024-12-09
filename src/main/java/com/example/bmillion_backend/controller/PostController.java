@@ -6,9 +6,12 @@ import com.example.bmillion_backend.dto.PostResponseDto;
 import com.example.bmillion_backend.repo.PostRepo;
 import com.example.bmillion_backend.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,29 +30,47 @@ public class PostController {
     private PostRepo postRepo;
 
     @Operation(summary = "게시글 작성")
-    @PostMapping()
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> createPost(
-            @RequestBody PostRequestDto postRequestDto,
-            @RequestParam(value = "image", required = false) MultipartFile imageFile,
+
+            @Parameter(description = "게시글 글", content =
+            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(required = false, value = "postRequestDto") PostRequestDto postRequestDto,
+
+            @Parameter(description = "게시글 사진", content =
+            @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestPart(required = false, value = "multipartFile") MultipartFile multipartFile,
+
             HttpServletRequest request) throws IOException {
-        postService.createPost(postRequestDto, imageFile, request);
+
+        postService.createPost(postRequestDto, multipartFile, request);
         return ResponseEntity.ok("게시글 작성 완료");
+
     }
 
     @Operation(summary = "게시글 수정")
-    @PutMapping("/{post_id}")
+    @PutMapping(value = "/{post_id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> updatePost(
-            @PathVariable Long post_id,
-            @RequestBody PostRequestDto postRequestDto,
-            @RequestParam(value = "image", required = false) MultipartFile imageFile,
+            @PathVariable(value = "post_id") Long post_id,
+
+            @Parameter(description = "게시글 글", content =
+            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(required = false, value = "postRequestDto") PostRequestDto postRequestDto,
+
+            @Parameter(description = "게시글 사진", content =
+            @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestPart(required = false, value = "multipartFile") MultipartFile multipartFile,
+
             HttpServletRequest request) throws IOException {
-        postService.updatePost(post_id, postRequestDto, imageFile, request);
+
+        postService.updatePost(post_id, postRequestDto, multipartFile, request);
         return ResponseEntity.ok("게시글 수정 완료");
+
     }
 
     @Operation(summary = "게시글 삭제")
     @DeleteMapping("/{post_id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long post_id, HttpServletRequest request) {
+    public ResponseEntity<String> deletePost(@PathVariable(value = "post_id") Long post_id, HttpServletRequest request) {
         postService.deletePost(post_id, request);
         return ResponseEntity.ok("게시글 삭제 완료");
     }
@@ -63,7 +84,7 @@ public class PostController {
 
     @Operation(summary = "게시글 조회")
     @GetMapping("/{post_id}")
-    public ResponseEntity<PostResponseDto> getPost(@PathVariable Long post_id, HttpServletRequest request) {
+    public ResponseEntity<PostResponseDto> getPost(@PathVariable(value = "post_id") Long post_id, HttpServletRequest request) {
         PostResponseDto post = postService.getPost(post_id, request);
         return ResponseEntity.ok(post);
     }

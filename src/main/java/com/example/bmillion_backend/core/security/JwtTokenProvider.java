@@ -123,11 +123,11 @@ public class JwtTokenProvider {
     }
 
     public void setHeaderAccessToken(HttpServletResponse response, String accessToken) {
-        response.setHeader("Authorization", "bearer "+ accessToken);
+        response.setHeader("Authorization", "Bearer "+ accessToken);
     }
 
     public void setHeaderRefreshToken(HttpServletResponse response, String refreshToken) {
-        response.setHeader("refreshToken", "bearer "+ refreshToken);
+        response.setHeader("refreshToken", "Bearer "+ refreshToken);
     }
 
     public String resolveAccessToken(HttpServletRequest request) {
