@@ -33,7 +33,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
         log.info(path);
         if (path.contains("/swagger") || path.contains("/v3/api-docs")
                 || path.startsWith("/auth") || path.startsWith("/error")
-                || path.equals("") || path.equals("/") || path.startsWith("/login")
+                || path.equals("/") || path.startsWith("/login")
         ) {
             filterChain.doFilter(request, response);
             return;
