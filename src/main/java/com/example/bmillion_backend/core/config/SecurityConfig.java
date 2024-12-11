@@ -44,9 +44,7 @@ public class SecurityConfig {
                                 AntPathRequestMatcher.antMatcher("/auth/**"),
                                 AntPathRequestMatcher.antMatcher("/normal/home/**"),
                                 AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
-                                AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
-                                AntPathRequestMatcher.antMatcher("/"),
-                                AntPathRequestMatcher.antMatcher("/login")
+                                AntPathRequestMatcher.antMatcher("/v3/api-docs/**")
                         ).permitAll()
                         .requestMatchers(
                                 AntPathRequestMatcher.antMatcher("/admin/**")
